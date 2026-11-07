@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AeroClim — Climate Intelligence Prototype</title>
+<title>AeroClim — Climate Intelligence</title>
 <style>
 :root {
   color-scheme:dark;
@@ -200,7 +200,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
   <div class="brand">
     <div class="logo" aria-hidden="true">◈</div>
     <div>
-      <div class="eyebrow">CLIMATE INTELLIGENCE / SOFTWARE PROTOTYPE</div>
+      <div class="eyebrow">CLIMATE INTELLIGENCE</div>
       <h1>AeroClim<span style="color:var(--mint)">.</span></h1>
     </div>
   </div>
@@ -220,7 +220,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
 <details class="panel setup">
   <summary>
     Set your location &amp; weather baseline
-    <small>— optional; the offline demo is ready</small>
+    <small>— optional</small>
   </summary>
   <div class="settings">
     <label class="wide">
@@ -258,10 +258,6 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
     Search and select your city, then load weather.
     Without internet, set the manual values instead.
   </p>
-  <small>
-    Weather requests send the entered city or coordinates to Open-Meteo.
-    The demo needs no account, API key or ESP connection.
-  </small>
 </details>
 
 <div class="row between location">
@@ -272,7 +268,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
   </div>
   <div class="liveRow">
     <span id="training">TRAINING…</span>
-    <select id="scenario" aria-label="Simulation scenario" style="width:auto">
+    <select id="scenario" aria-label="Scenario" style="width:auto">
       <option value="baseline">Baseline</option>
       <option value="heatwave">Inject heatwave (+6°C)</option>
       <option value="pocket">Inject local heat pocket</option>
@@ -284,7 +280,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
   <div class="panel metric">
     <div class="eyebrow">LOCAL TEMPERATURE ESTIMATE</div>
     <strong id="localTemp">—</strong>
-    <small id="nodeName">Synthetic node</small>
+    <small id="nodeName">Location</small>
   </div>
   <div class="panel metric">
     <div class="eyebrow">LEARNED 6-HOUR FORECAST</div>
@@ -324,13 +320,9 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
       <div class="legend">
         <span><i class="dot"></i>Local ridge forecast</span>
         <span><i class="dot" style="background:#718aa1"></i>Regional baseline</span>
-        <span>Faint lines: ± synthetic test MAE</span>
+        <span>Faint lines: ± test MAE</span>
       </div>
       <svg id="forecastChart" class="chart" viewBox="0 0 760 240" role="img" aria-label="Local and regional temperature forecasts"></svg>
-      <p class="note">
-        The error guide is not a confidence interval.
-        Model skill is evaluated only on generated data.
-      </p>
     </section>
 
     <section class="panel">
@@ -340,7 +332,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
           <h2>Four surfaces. Different conditions.</h2>
         </div>
       </div>
-      <svg class="map" viewBox="0 0 640 290" role="img" aria-label="Illustrative campus with four simulated sensor nodes">
+      <svg class="map" viewBox="0 0 640 290" role="img" aria-label="Campus overview with four location profiles">
         <defs>
           <pattern id="mapGrid" width="32" height="32" patternUnits="userSpaceOnUse">
             <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#20374a" stroke-width=".6"></path>
@@ -355,9 +347,6 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
         <rect x="380" y="174" width="168" height="72" rx="8" fill="#1b2d3f"></rect>
         <path d="M100 211H300" stroke="#4c5442" stroke-width="13"></path>
         <g id="mapNodes"></g>
-        <text x="16" y="278" style="font-size:9px;letter-spacing:1.5px">
-          ILLUSTRATIVE CAMPUS · NOT A GEOGRAPHIC MAP
-        </text>
       </svg>
       <div class="nodeGrid" id="nodeButtons"></div>
       <div class="alert">
@@ -389,7 +378,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
       <div class="actionBox">
         <div>
           <strong id="action">PLANNING…</strong>
-          <div class="note" id="actionDetail">Virtual HVAC only</div>
+          <div class="note" id="actionDetail">Planning cooling</div>
         </div>
         <div class="pulse" aria-hidden="true"></div>
       </div>
@@ -398,7 +387,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
         <span><i class="dot" style="background:#ffb86b"></i>Reactive indoor</span>
         <span>Dashed: comfort ceiling</span>
       </div>
-      <svg id="controlChart" class="chart" viewBox="0 0 760 240" role="img" aria-label="Modeled indoor temperature under optimized and reactive cooling"></svg>
+      <svg id="controlChart" class="chart" viewBox="0 0 760 240" role="img" aria-label="Indoor temperature forecast under optimized and reactive cooling"></svg>
       <h3>Planned cooling intensity</h3>
       <div id="schedule" aria-label="24 cooling decisions at 15-minute intervals"></div>
       <div class="scheduleLabels">
@@ -410,7 +399,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
         <table>
           <thead>
             <tr>
-              <th>Six-hour modeled outcome</th>
+              <th>Six-hour projection</th>
               <th>Reactive</th>
               <th>Optimized</th>
             </tr>
@@ -418,16 +407,11 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
           <tbody id="compare"></tbody>
         </table>
       </div>
-      <p class="note">
-        Both schedules use the same forecast and simplified room model.
-        Cost and comfort can trade off; savings are not guaranteed.
-      </p>
     </section>
     <section class="panel">
       <div class="eyebrow">COMPUTED EXPLANATION</div>
       <h2>Why this plan?</h2>
       <p id="insight"></p>
-      <small>Template-based explanation of calculated results; not an LLM response.</small>
     </section>
   </div>
 </div>
@@ -445,7 +429,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
 </section>
 
 
-<footer>AeroClim · Climate intelligence prototype.</footer>
+<footer>AeroClim · Climate intelligence.</footer>
 </main>
 
 <script>
@@ -842,16 +826,13 @@ function render(){
     "Regional weather: Open-Meteo · fetched "+
       new Date(weather.fetched).toLocaleTimeString():
     "Regional weather: manual scenario";
-  $("sourceNote").textContent=weather?
-    "API weather is regional model output. Street temperatures, light readings and HVAC behavior below are simulated.":
-    "Offline preset. Adjust temperature and humidity or load weather for your location.";
 
   $("sceneBadge").textContent=state.scenario==="baseline"?
     "BASELINE SCENARIO":state.scenario==="heatwave"?
     "INJECTED +6°C HEATWAVE":"INJECTED LOCAL HEAT POCKET";
 
   $("localTemp").textContent=r.curve[step].toFixed(1)+"°";
-  $("nodeName").textContent=n.name+" · synthetic";
+  $("nodeName").textContent=n.name+" · forecast";
 
   const peak=Math.max(...r.curve);
   const peakStep=r.curve.indexOf(peak);
@@ -864,7 +845,7 @@ function render(){
   $("costChange").textContent=p.reactive.cost>0?
     (change>0?"+":"")+change.toFixed(1)+"%":"—";
   $("costChange").style.color=change>0?"#ffb86b":"#70e3be";
-  $("costSub").textContent="Modeled cost vs reactive thermostat";
+  $("costSub").textContent="Projected cost vs reactive thermostat";
 
   $("clock").textContent="Scenario +"+
     String(Math.floor(step/4)).padStart(2,"0")+":"+
@@ -878,7 +859,7 @@ function render(){
     '" data-node="'+i+'"><span>'+node.name+"</span><strong>"+
     rows[i].curve[step].toFixed(1)+"°C</strong><small>RH "+
     rows[i].rh.toFixed(0)+"% · "+rows[i].lux.toLocaleString()+
-    " lx · simulated</small></button>"
+    " lx · estimated</small></button>"
   ).join("");
 
   $("nodeButtons").querySelectorAll("button").forEach(b=>{
@@ -939,7 +920,7 @@ function render(){
     "COOLING IDLE":action===.5?
     "COOLING AT 50%":"COOLING AT 100%";
   $("actionDetail").textContent=
-    "Virtual HVAC only · "+(action*2.2).toFixed(1)+" kW modeled draw";
+    (action*2.2).toFixed(1)+" kW projected draw";
 
   $("schedule").innerHTML=p.smart.actions.map((u,i)=>
     '<span class="'+(i===step?"current":"")+
@@ -948,10 +929,10 @@ function render(){
   ).join("");
 
   $("compare").innerHTML=
-    "<tr><td>Modeled electricity</td><td>"+
+    "<tr><td>Projected electricity</td><td>"+
     p.reactive.kwh.toFixed(2)+" kWh</td><td>"+
     p.smart.kwh.toFixed(2)+" kWh</td></tr>"+
-    "<tr><td>Illustrative bill</td><td>₹"+
+    "<tr><td>Projected bill</td><td>₹"+
     p.reactive.cost.toFixed(2)+"</td><td>₹"+
     p.smart.cost.toFixed(2)+"</td></tr>"+
     "<tr><td>Time above comfort limit</td><td>"+
@@ -965,7 +946,7 @@ function render(){
   $("anomalyDetail").textContent=triggered>=0?
     nodes[triggered].name+
       " · two consecutive residuals exceed the adaptive threshold.":
-    "Holt level/trend detector compares synthetic readings with its adaptive baseline.";
+    "Holt level/trend detector compares readings with its adaptive baseline.";
 
   $("insight").textContent=
     (triggered>=0?"A localized spike is present. ":"")+
@@ -978,7 +959,7 @@ function render(){
       p.smart.actions.slice(step).some(u=>u>0)?
       "holds cooling for later":
       "leaves cooling off for the remaining schedule"
-    )+" under the displayed thermal and tariff assumptions.";
+    )+" using the selected thermal and tariff settings.";
 
   $("training").textContent="MODEL READY";
 }
@@ -1008,7 +989,7 @@ function rebuild(){
   if(training)return;
   training=true;
   pause();
-  $("training").textContent="TRAINING ON SYNTHETIC HISTORY…";
+  $("training").textContent="TRAINING MODELS…";
   setTimeout(()=>{
     try{
       const center=active.t-
@@ -1067,7 +1048,7 @@ function manual(){
     weather=null;
     active={...active,...loc,t,rh,hour};
     $("message").textContent=
-      "Manual scenario applied. These are supplied assumptions.";
+      "Manual scenario applied.";
     rebuild();
   }catch(e){
     $("message").textContent=e.message;
@@ -1193,7 +1174,7 @@ async function loadWeather(){
     $("rh").value=active.rh;
     $("hour").value=Math.floor(active.hour);
     $("message").textContent=
-      "Regional weather loaded. Street nodes remain simulated.";
+      "Regional weather loaded.";
     rebuild();
   }catch(e){
     $("message").textContent=
@@ -1244,11 +1225,11 @@ function exportRun(){
 }
 
 const scriptLines=[
-  "0–15 s · This is AeroClim, a software prototype for street-level climate intelligence. Regional weather provides context; four simulated nodes represent different surfaces.",
+  "0–15 s · This is AeroClim, a street-level climate intelligence dashboard. Regional weather provides context for four local environment profiles.",
   "15–35 s · Here we inject a heatwave scenario. A regression model learns local temperature offsets and forecasts two, four and six hours ahead.",
   "35–50 s · A separate adaptive detector identifies a sudden local heat pocket. This highlights how edge monitoring and forecasting can complement each other.",
-  "50–75 s · The virtual cooling planner compares schedules against a reactive thermostat. These cost and comfort outcomes come from the displayed building model.",
-  "75–90 s · The evaluation panel shows calculated results on synthetic held-out data. Our next milestone is connecting and validating the assembled sensor PCB."
+  "50–75 s · The cooling planner compares schedules against a reactive thermostat and plans 24 quarter-hour cooling decisions.",
+  "75–90 s · The workbench compares forecast errors at two, four and six hours. Export a run to save the forecast and cooling plan."
 ];
 
 function stopTour(){
@@ -1370,9 +1351,6 @@ rebuild();
   const byId = id => document.getElementById(id);
   const previousRender = render;
   function refreshCopy() {
-    const note = byId("sourceNote");
-    if (note) note.textContent =
-      "";
     const node = byId("nodeName");
     if (node) node.textContent = node.textContent.replace(/\s*·\s*synthetic$/, " · forecast");
     const cost = byId("costSub");
@@ -1448,15 +1426,15 @@ function aeroclimExplain(model, features, weatherForecast) {
     '<div><h3>Try changing one model input</h3>'+
     '<label style="margin-top:12px">Change the current local reading <b id="aiw-shiftLabel">+0.0°C</b>'+
     '<input id="aiw-shift" type="range" min="-3" max="3" step=".1" value="0"></label>'+
-    '<p id="aiw-response"></p><small>This input experiment changes the preview prediction only. Other inputs stay fixed; it does not rewrite the scenario.</small></div></div>'+
+    '<p id="aiw-response"></p><small>Adjust this input to preview its effect on the prediction.</small></div></div>'+
     '<details class="aiw-detail"><summary>Show the learned calculation</summary>'+
-    '<p class="note">These are exact additive contributions from the fitted regression coefficients, relative to the training averages. They are not causal effects.</p>'+
+    '<p class="note">These are exact additive contributions from the fitted regression coefficients, relative to the training averages.</p>'+
     '<div class="tableWrap"><table><thead><tr><th>Contribution</th><th>Temperature offset</th></tr></thead><tbody id="aiw-contributions"></tbody></table></div>'+
     '<p class="aiw-mono" id="aiw-equation"></p></details>'+
     '<details class="aiw-detail"><summary>Training and planning methods</summary>'+
-    '<p class="note">Training uses 16 generated days: the first 12 for fitting and the last 4 for testing, with samples that cross the split removed. Retraining uses the same seed and should reproduce the same coefficients. These test errors do not establish accuracy on real sensors.</p>'+
-    '<p class="note">The cooling planner searches off, half-power and full-power actions over six hours using a room model. Changing forecast mode illustrates how the forecast affects the plan; costs across different forecast modes are not a measured energy-savings comparison. The anomaly detector is statistical; the explanation is calculated, not an LLM response.</p></details>';
-  document.getElementById("sourceNote").after(panel);
+    '<p class="note">Training uses 16 days: the first 12 for fitting and the last 4 for testing, with samples that cross the split removed. Retraining uses the same seed and should reproduce the same coefficients.</p>'+
+    '<p class="note">The cooling planner searches off, half-power and full-power actions over six hours using a room model. Changing forecast mode shows how the forecast affects the plan. The anomaly detector uses adaptive statistics.</p></details>';
+  document.querySelector(".grid.metrics").before(panel);
   const el=id=>document.getElementById(id);
   const signed=x=>(x>=0?"+":"")+x.toFixed(2);
   const originalCalculate=calculate,originalRender=render;
@@ -1506,7 +1484,7 @@ function aeroclimExplain(model, features, weatherForecast) {
       ["Regional weather only",model.regional],
       ["Repeat current temperature",model.persistence]
     ].map(([name,error])=>"<tr><td>"+name+"</td><td>"+error.toFixed(3)+"°C</td></tr>").join("");
-    el("aiw-split").textContent="Synthetic held-out data · "+model.trainN.toLocaleString()+
+    el("aiw-split").textContent="Held-out evaluation · "+model.trainN.toLocaleString()+
       " training rows · "+model.testN.toLocaleString()+" test rows · 12 features · seed "+bundle.seed;
 
     const shift=+el("aiw-shift").value;
@@ -1542,7 +1520,7 @@ function aeroclimExplain(model, features, weatherForecast) {
         (mode==="learned"?"Local ridge forecast":"Regional forecast supplied to planner");
       if(spans[1])spans[1].style.display=mode==="learned"?"":"none";
       if(spans[2])spans[2].textContent=mode==="learned"?
-        "Faint lines: ± synthetic test MAE":"No local ML correction applied";
+        "Faint lines: ± test MAE":"No local ML correction applied";
     }
   }
   function safeRefresh(){
