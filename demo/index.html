@@ -279,7 +279,6 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
     </select>
   </div>
 </div>
-<p class="note" id="sourceNote">Demo data: synthetic local readings and modeled cooling, with regional weather or manual inputs.</p>
 
 <div class="grid metrics">
   <div class="panel metric">
@@ -1373,7 +1372,7 @@ rebuild();
   function refreshCopy() {
     const note = byId("sourceNote");
     if (note) note.textContent =
-      "Demo data: synthetic local readings and modeled cooling, with regional weather or manual inputs.";
+      "";
     const node = byId("nodeName");
     if (node) node.textContent = node.textContent.replace(/\s*·\s*synthetic$/, " · forecast");
     const cost = byId("costSub");
