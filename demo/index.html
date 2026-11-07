@@ -279,6 +279,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
     </select>
   </div>
 </div>
+<p class="note" id="sourceNote">Demo data: synthetic local readings and modeled cooling, with regional weather or manual inputs.</p>
 
 <div class="grid metrics">
   <div class="panel metric">
@@ -443,6 +444,7 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
     You can stop it and operate the controls manually.
   </small>
 </section>
+
 
 <footer>AeroClim · Climate intelligence prototype.</footer>
 </main>
@@ -978,6 +980,7 @@ function render(){
       "holds cooling for later":
       "leaves cooling off for the remaining schedule"
     )+" under the displayed thermal and tariff assumptions.";
+
   $("training").textContent="MODEL READY";
 }
 
@@ -1370,7 +1373,7 @@ rebuild();
   function refreshCopy() {
     const note = byId("sourceNote");
     if (note) note.textContent =
-      "";
+      "Demo data: synthetic local readings and modeled cooling, with regional weather or manual inputs.";
     const node = byId("nodeName");
     if (node) node.textContent = node.textContent.replace(/\s*·\s*synthetic$/, " · forecast");
     const cost = byId("costSub");
