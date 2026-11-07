@@ -1,0 +1,7 @@
+# Direct dependencies from the validation environment; Python 3.12.14.
+numpy==2.3.5
+pandas==2.2.3
+scikit-learn==1.8.0
+paho-mqtt==2.1.0
+pyserial==3.5
+streamlit==1.66.1

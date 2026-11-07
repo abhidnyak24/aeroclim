@@ -1,0 +1,64 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: Python ${{ matrix.python-version }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.11', '3.12']
+        include:
+          - os: windows-latest
+            python-version: '3.12'
+    env:
+      AEROCLIM_TEST_ML: '1'
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: pc/requirements-tested.txt
+      - name: Install validated direct dependencies
+        run: python -m pip install -r pc/requirements-tested.txt
+      - name: Check Python source compilation
+        run: python -m compileall -q pc tests
+      - name: Run regression and model integration tests
+        run: python -m unittest discover -s tests -v
+
+  firmware-core:
+    name: Firmware core
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Compile portable firmware core tests
+        run: g++ -std=c++11 -Wall -Wextra -Werror -pedantic tests/test_firmware.cpp -o /tmp/aeroclim-core-test
+      - name: Run portable firmware core tests
+        run: /tmp/aeroclim-core-test
+
+  browser-demo:
+    name: Browser demo calculations
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          package-manager-cache: false
+      - name: Test dashboard JavaScript
+        run: node --test tests/test_demo.cjs

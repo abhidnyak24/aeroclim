@@ -1,0 +1,1701 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AeroClim — Climate Intelligence Prototype</title>
+<style>
+:root {
+  color-scheme:dark;
+  --bg:#07121e; --panel:#0c1c2b; --line:#233b4d;
+  --text:#e9f3fa; --muted:#91a8bb; --mint:#70e3be; --orange:#ffb86b;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(ellipse at 90% 0,#13364b 0,transparent 50%),var(--bg);
+  color:var(--text);
+  font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;
+}
+button,input,select{font:inherit}
+button{
+  border:1px solid #345166;border-radius:9px;background:#162d40;
+  color:var(--text);padding:10px 15px;cursor:pointer;transition:.15s;
+}
+button:hover{background:#23445a;transform:translateY(-1px)}
+button:focus-visible,input:focus-visible,select:focus-visible{
+  outline:2px solid var(--mint);outline-offset:3px;
+}
+button:disabled{opacity:.5;cursor:wait}
+button.primary{
+  background:var(--mint);border-color:var(--mint);color:#06251b;font-weight:750;
+}
+input,select{
+  width:100%;border:1px solid #345166;background:#081723;color:var(--text);
+  border-radius:8px;padding:9px;min-width:0;
+}
+label{display:block;font-size:12px;color:var(--muted)}
+label input,label select{margin-top:5px}
+input[type=range]{padding:0;accent-color:var(--mint)}
+a{color:var(--mint)}
+p{margin:8px 0}
+h1,h2,h3{margin:0;letter-spacing:-.035em}
+h1{font-size:34px;line-height:1.1}
+h2{font-size:19px}
+h3{font-size:14px}
+small,.muted{color:var(--muted)}
+small{font-size:12px}
+main{max-width:1440px;margin:auto;padding:28px 30px 60px}
+.row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.between{justify-content:space-between}
+.top{align-items:flex-start}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{
+  display:grid;place-items:center;width:48px;height:48px;
+  border:1px solid #70e3be77;border-radius:14px;background:#70e3be15;
+  color:var(--mint);font-size:25px;
+}
+.eyebrow{font-size:10px;letter-spacing:1.8px;font-weight:750;color:var(--mint)}
+.tag{
+  display:inline-block;border:1px solid #3a5970;border-radius:30px;
+  padding:5px 10px;font-size:10px;letter-spacing:1px;color:#c5d8e6;
+}
+.tag.warn{color:var(--orange);border-color:#8d633c;background:#ffb86b09}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+.tools button{font-size:12px;padding:8px 12px}
+.subline{margin:18px 0 20px;color:var(--muted);font-size:13px}
+.panel{
+  background:linear-gradient(140deg,#102435,#0a1928);
+  border:1px solid var(--line);border-radius:16px;padding:20px;
+  box-shadow:0 12px 35px #0002;
+}
+.sectionhead{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:12px;margin-bottom:15px;
+}
+.grid{display:grid;gap:16px}
+.mainGrid{grid-template-columns:1.08fr 1fr;align-items:start;margin-top:16px}
+.stack{display:grid;gap:16px}
+.metrics{grid-template-columns:repeat(4,1fr);margin:16px 0}
+.metric{padding:17px 20px}
+.metric strong{
+  display:block;font-size:38px;font-weight:650;letter-spacing:-1.6px;
+  line-height:1.2;margin:7px 0;
+}
+.metric small{font-size:11px}
+.metric .eyebrow{color:var(--muted);font-size:9px}
+.setup{margin-bottom:16px}
+details>summary{cursor:pointer;list-style:none;font-weight:650}
+details>summary::before{content:"+ ";color:var(--mint)}
+details[open]>summary::before{content:"− "}
+.settings{
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;
+  gap:12px;margin-top:16px;align-items:end;
+}
+.settings .wide{grid-column:span 2}
+.settings button{width:100%}
+.manual{
+  display:grid;grid-template-columns:repeat(3,1fr) 1.5fr;
+  gap:12px;margin-top:14px;align-items:end;
+}
+#message{color:var(--orange);font-size:12px;min-height:18px;margin-top:12px}
+#results[hidden]{display:none}
+.location{margin-top:14px}
+.location strong{font-size:20px;letter-spacing:-.5px}
+.location small{margin-left:7px}
+.chart{display:block;width:100%;height:auto;overflow:visible}
+.chart text,.map text{fill:#91a8bb;font:11px system-ui,sans-serif}
+.map text{font-size:13px}
+.map{display:block;width:100%;height:auto;max-height:230px}
+.legend{
+  display:flex;gap:18px;flex-wrap:wrap;font-size:10px;
+  color:var(--muted);margin:6px 0 12px;
+}
+.dot{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  margin-right:5px;background:var(--mint);
+}
+.nodeGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.node{text-align:left;padding:11px 13px;background:#0b1926}
+.node.selected{border-color:var(--mint);box-shadow:inset 0 0 0 1px #70e3be33}
+.node span{font-size:12px;display:block}
+.node strong{font-size:23px}
+.node small{display:block;font-size:9px}
+.alert{
+  border-left:3px solid var(--orange);padding:12px 15px;
+  background:#ffb86b08;border-radius:0 9px 9px 0;margin-top:14px;
+}
+.alert strong{font-size:11px;letter-spacing:.8px}
+.alert p{font-size:12px;color:var(--muted);margin-bottom:0}
+.actionBox{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:1px solid #70e3be44;background:#70e3be09;
+  border-radius:10px;padding:14px;margin:12px 0;
+}
+.actionBox strong{color:var(--mint);font-size:17px}
+.pulse{
+  width:12px;height:12px;border-radius:50%;background:var(--mint);
+  box-shadow:0 0 0 6px #70e3be15;
+}
+.sliders{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}
+.sliders b{color:var(--text);float:right;font-weight:500}
+#schedule{
+  display:grid;grid-template-columns:repeat(24,1fr);
+  gap:3px;margin:12px 0 4px;height:28px;
+}
+#schedule span{border-radius:3px}
+#schedule .current{outline:2px solid white;outline-offset:2px}
+.scheduleLabels{
+  display:flex;justify-content:space-between;font-size:10px;color:var(--muted);
+}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{
+  padding:9px 7px;border-bottom:1px solid var(--line);
+  text-align:right;white-space:nowrap;
+}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--muted);font-weight:500;font-size:10px}
+td:last-child{color:var(--mint)}
+.tableWrap{overflow-x:auto}
+.timelineBar{margin-top:16px;padding:14px 20px}
+.timelineBar input{flex:1;min-width:130px}
+#clock{font:12px ui-monospace,monospace;color:var(--mint);min-width:135px}
+.timelineBar button{font-size:12px;padding:8px 12px}
+.narration{margin-top:16px;border-color:#70e3be55}
+.narration p{font-size:16px;line-height:1.6;max-width:1050px}
+.evidence{margin-top:16px}
+.evidence p,.evidence li{color:var(--muted);font-size:12px}
+.evidenceGrid{display:grid;grid-template-columns:1.3fr 1fr;gap:24px;margin-top:18px}
+.note{font-size:11px;color:var(--muted)}
+.howto{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-top:18px}
+.howto b{color:var(--mint)}
+footer{margin-top:20px;font-size:11px;color:var(--muted)}
+#overview,#controlPanel,#evidence{scroll-margin-top:16px}
+#training{font-size:10px;color:var(--mint)}
+.liveRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+@media(max-width:950px){
+  main{padding:20px 16px}
+  .mainGrid{grid-template-columns:1fr}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .evidenceGrid{grid-template-columns:1fr}
+  .settings{grid-template-columns:repeat(2,1fr)}
+  .manual{grid-template-columns:repeat(2,1fr)}
+  .howto{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  h1{font-size:27px}
+  .metric strong{font-size:30px}
+  .panel{padding:15px}
+  .settings,.manual{grid-template-columns:1fr}
+  .settings .wide{grid-column:span 1}
+  .sliders{grid-template-columns:1fr}
+  .tag{font-size:9px}
+  .metrics{gap:10px}
+  .nodeGrid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<main>
+<header class="row between top" id="overview">
+  <div class="brand">
+    <div class="logo" aria-hidden="true">◈</div>
+    <div>
+      <div class="eyebrow">CLIMATE INTELLIGENCE / SOFTWARE PROTOTYPE</div>
+      <h1>AeroClim<span style="color:var(--mint)">.</span></h1>
+    </div>
+  </div>
+  <div class="tools">
+    <button id="tour" class="primary">Start 90-second tour</button>
+    <button id="full">Fullscreen</button>
+    <button id="export">Export run</button>
+    <button id="save">Save app copy</button>
+  </div>
+</header>
+
+<div class="row between subline">
+  <span>Forecast local heat. Detect sudden changes. Plan cooling ahead.</span>
+  
+</div>
+
+<details class="panel setup">
+  <summary>
+    Set your location &amp; weather baseline
+    <small>— optional; the offline demo is ready</small>
+  </summary>
+  <div class="settings">
+    <label class="wide">
+      City / location label
+      <input id="city" value="Pimpri-Chinchwad">
+    </label>
+    <button id="search">Search city</button>
+    <button id="load" class="primary">Load regional weather</button>
+    <select class="wide" id="results" aria-label="Location search results" hidden=""></select>
+    <label>
+      Latitude
+      <input id="lat" type="number" step="any" min="-90" max="90" value="18.6298">
+    </label>
+    <label>
+      Longitude
+      <input id="lon" type="number" step="any" min="-180" max="180" value="73.7997">
+    </label>
+  </div>
+  <div class="manual">
+    <label>
+      Manual temperature (°C)
+      <input id="temp" type="number" min="-20" max="50" step=".1" value="31">
+    </label>
+    <label>
+      Manual humidity (%)
+      <input id="rh" type="number" min="5" max="100" value="55">
+    </label>
+    <label>
+      Local scenario hour (0–23)
+      <input id="hour" type="number" min="0" max="23" value="13">
+    </label>
+    <button id="apply">Apply manual baseline</button>
+  </div>
+  <p id="message" role="status">
+    Search and select your city, then load weather.
+    Without internet, set the manual values instead.
+  </p>
+  <small>
+    Weather requests send the entered city or coordinates to Open-Meteo.
+    The demo needs no account, API key or ESP connection.
+  </small>
+</details>
+
+<div class="row between location">
+  <div>
+    <strong id="place">Pimpri-Chinchwad</strong>
+    <small id="coords"></small>
+    <div class="note" id="weatherSource">Regional weather: manual scenario</div>
+  </div>
+  <div class="liveRow">
+    <span id="training">TRAINING…</span>
+    <select id="scenario" aria-label="Simulation scenario" style="width:auto">
+      <option value="baseline">Baseline</option>
+      <option value="heatwave">Inject heatwave (+6°C)</option>
+      <option value="pocket">Inject local heat pocket</option>
+    </select>
+  </div>
+</div>
+<p class="note" id="sourceNote">Demo data: synthetic local readings and modeled cooling, with regional weather or manual inputs.</p>
+
+<div class="grid metrics">
+  <div class="panel metric">
+    <div class="eyebrow">LOCAL TEMPERATURE ESTIMATE</div>
+    <strong id="localTemp">—</strong>
+    <small id="nodeName">Synthetic node</small>
+  </div>
+  <div class="panel metric">
+    <div class="eyebrow">LEARNED 6-HOUR FORECAST</div>
+    <strong id="peak">—</strong>
+    <small id="peakAt">Forecast peak</small>
+  </div>
+  <div class="panel metric">
+    <div class="eyebrow">INDOOR TEMPERATURE MODEL</div>
+    <strong id="indoorNow">—</strong>
+    <small>Optimized cooling schedule</small>
+  </div>
+  <div class="panel metric">
+    <div class="eyebrow">PROJECTED COST CHANGE</div>
+    <strong id="costChange">—</strong>
+    <small id="costSub">Compared with reactive thermostat</small>
+  </div>
+</div>
+
+<div class="panel timelineBar row">
+  <button id="play">▶ Play 6 hours</button>
+  <button id="reset">Reset</button>
+  <input id="timeline" aria-label="Scenario replay time" type="range" min="0" max="24" value="0">
+  <span id="clock">Scenario +00:00</span>
+  <span class="note">Accelerated replay</span>
+</div>
+
+<div class="grid mainGrid">
+  <div class="stack">
+    <section class="panel">
+      <div class="sectionhead">
+        <div>
+          <div class="eyebrow">01 / LEARNED FORECAST</div>
+          <h2>See heat before it arrives</h2>
+        </div>
+        <span class="tag" id="sceneBadge">BASELINE SCENARIO</span>
+      </div>
+      <div class="legend">
+        <span><i class="dot"></i>Local ridge forecast</span>
+        <span><i class="dot" style="background:#718aa1"></i>Regional baseline</span>
+        <span>Faint lines: ± synthetic test MAE</span>
+      </div>
+      <svg id="forecastChart" class="chart" viewBox="0 0 760 240" role="img" aria-label="Local and regional temperature forecasts"></svg>
+      <p class="note">
+        The error guide is not a confidence interval.
+        Model skill is evaluated only on generated data.
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="sectionhead">
+        <div>
+          <div class="eyebrow">02 / LOCATION SCENARIOS</div>
+          <h2>Four surfaces. Different conditions.</h2>
+        </div>
+      </div>
+      <svg class="map" viewBox="0 0 640 290" role="img" aria-label="Illustrative campus with four simulated sensor nodes">
+        <defs>
+          <pattern id="mapGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+            <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#20374a" stroke-width=".6"></path>
+          </pattern>
+        </defs>
+        <rect width="640" height="290" rx="12" fill="#081723"></rect>
+        <rect width="640" height="290" fill="url(#mapGrid)"></rect>
+        <path d="M0 145H640M310 0V290" stroke="#223647" stroke-width="28"></path>
+        <path d="M0 145H640M310 0V290" stroke="#3c5262" stroke-width="1" stroke-dasharray="9 9"></path>
+        <rect x="90" y="48" width="145" height="85" rx="32" fill="#1c493c" opacity=".4"></rect>
+        <rect x="365" y="37" width="145" height="74" rx="8" fill="#34445b"></rect>
+        <rect x="380" y="174" width="168" height="72" rx="8" fill="#1b2d3f"></rect>
+        <path d="M100 211H300" stroke="#4c5442" stroke-width="13"></path>
+        <g id="mapNodes"></g>
+        <text x="16" y="278" style="font-size:9px;letter-spacing:1.5px">
+          ILLUSTRATIVE CAMPUS · NOT A GEOGRAPHIC MAP
+        </text>
+      </svg>
+      <div class="nodeGrid" id="nodeButtons"></div>
+      <div class="alert">
+        <strong id="anomalyState">NO CONFIRMED SPIKE</strong>
+        <p id="anomalyDetail"></p>
+      </div>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="panel" id="controlPanel">
+      <div class="sectionhead">
+        <div>
+          <div class="eyebrow">03 / PREDICTIVE CONTROL</div>
+          <h2>Plan cooling around the forecast</h2>
+        </div>
+        <span class="tag">COOLING PLAN</span>
+      </div>
+      <div class="sliders">
+        <label>
+          Initial indoor temperature <b id="indoorValue">27.4 °C</b>
+          <input id="indoor" type="range" min="23" max="33" step=".1" value="27.4">
+        </label>
+        <label>
+          Comfort ceiling <b id="comfortValue">27.5 °C</b>
+          <input id="comfort" type="range" min="24" max="30" step=".1" value="27.5">
+        </label>
+      </div>
+      <div class="actionBox">
+        <div>
+          <strong id="action">PLANNING…</strong>
+          <div class="note" id="actionDetail">Virtual HVAC only</div>
+        </div>
+        <div class="pulse" aria-hidden="true"></div>
+      </div>
+      <div class="legend">
+        <span><i class="dot"></i>Optimized indoor</span>
+        <span><i class="dot" style="background:#ffb86b"></i>Reactive indoor</span>
+        <span>Dashed: comfort ceiling</span>
+      </div>
+      <svg id="controlChart" class="chart" viewBox="0 0 760 240" role="img" aria-label="Modeled indoor temperature under optimized and reactive cooling"></svg>
+      <h3>Planned cooling intensity</h3>
+      <div id="schedule" aria-label="24 cooling decisions at 15-minute intervals"></div>
+      <div class="scheduleLabels">
+        <span>Now</span>
+        <span>Dark: off · medium: 50% · bright: 100%</span>
+        <span>+6 h</span>
+      </div>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Six-hour modeled outcome</th>
+              <th>Reactive</th>
+              <th>Optimized</th>
+            </tr>
+          </thead>
+          <tbody id="compare"></tbody>
+        </table>
+      </div>
+      <p class="note">
+        Both schedules use the same forecast and simplified room model.
+        Cost and comfort can trade off; savings are not guaranteed.
+      </p>
+    </section>
+    <section class="panel">
+      <div class="eyebrow">COMPUTED EXPLANATION</div>
+      <h2>Why this plan?</h2>
+      <p id="insight"></p>
+      <small>Template-based explanation of calculated results; not an LLM response.</small>
+    </section>
+  </div>
+</div>
+
+<section class="panel narration">
+  <div class="row between">
+    <div class="eyebrow">RECORDING GUIDE / 90 SECONDS</div>
+    <small id="tourTime">Ready</small>
+  </div>
+  <p id="narration"></p>
+  <small>
+    The guided tour changes scenarios automatically.
+    You can stop it and operate the controls manually.
+  </small>
+</section>
+
+<details class="panel evidence" id="evidence">
+  <summary>Model evidence, assumptions &amp; demo notes</summary>
+  <p id="trainMeta"></p>
+  <div class="evidenceGrid">
+    <div>
+      <h3>Calculated test errors — synthetic data only</h3>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Horizon</th>
+              <th>Ridge MAE</th>
+              <th>Persistence MAE</th>
+              <th>Regional MAE</th>
+              <th>Test rows</th>
+            </tr>
+          </thead>
+          <tbody id="modelRows"></tbody>
+        </table>
+      </div>
+      <p>
+        Three ridge regressions are trained in this browser on generated
+        temperature-offset history. Inputs include present offset, trend,
+        hour, surface properties, humidity and future regional temperature.
+        There are no prewritten accuracy or savings results.
+      </p>
+      <p>
+        Training and testing are separated by time and forecast horizon.
+        Both ridge and regional baselines receive the generated future
+        regional temperature. Real weather forecast error, hardware error
+        and transfer to real sites are not validated here. These numbers
+        must not be presented as field accuracy.
+      </p>
+      <p>
+        The anomaly detector uses Holt level/trend residuals and requires
+        two consecutive high residuals. The planner uses a beam search
+        through off, half-power and full-power actions. Only the forecasting
+        component learns regression coefficients.
+      </p>
+    </div>
+    <div>
+      <h3>Transparent assumptions</h3>
+      <ul>
+        <li>Four synthetic nodes; no USB, MQTT, ESP or sensor connection.</li>
+        <li>
+          Room thermal time constant: 4 hours. Extra heat gain: 0.15°C/h.
+          Full cooling effect: 2.6°C/h. Full electrical draw: 2.2 kW.
+        </li>
+        <li>
+          Illustrative tariffs: ₹8/kWh, rising to ₹14/kWh from scenario
+          hour +2 to +4. These are not your actual local tariffs.
+        </li>
+        <li>
+          Reactive thermostat switches on at the comfort ceiling and off
+          1°C below it. Optimizer trades off cost, overheating, overcooling
+          and switching.
+        </li>
+        <li>
+          Humidity and light are illustrative; no gas, particulate, CO₂ or
+          carbon-emissions claims are generated.
+        </li>
+        <li>
+          Location selects regional weather, not a measurement of your room.
+          Manual values are assumptions.
+        </li>
+      </ul>
+      <p>
+        Weather and geocoding:
+        <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>
+        (CC BY 4.0). Online loading is optional; API availability is not guaranteed.
+        Export run saves inputs, assumptions, generated results, metrics and
+        model coefficients.
+      </p>
+    </div>
+  </div>
+  <div class="howto">
+    <p>
+      <b>1. Prepare.</b> Set your location or manual baseline.
+      Keep the simulated-data label visible. Open Fullscreen and rehearse once.
+    </p>
+    <p>
+      <b>2. Record.</b> Start your screen recorder, then the 90-second tour.
+      Read or paraphrase the narration below the dashboard.
+      Show your assembled PCB separately as hardware awaiting integration.
+    </p>
+    <p>
+      <b>3. Explain.</b> Present this as a software simulation prototype.
+      Show calculated synthetic evaluation; describe real sensor validation
+      as the next milestone.
+    </p>
+  </div>
+</details>
+
+<footer>AeroClim · Climate intelligence prototype.</footer>
+</main>
+
+<script>
+const nodes=[
+  {name:"Asphalt court",bias:1.2,gain:3.4,x:73,y:62},
+  {name:"Shaded garden",bias:-.8,gain:.45,x:25,y:35},
+  {name:"Library roof",bias:.8,gain:2.5,x:67,y:25},
+  {name:"Walkway",bias:.2,gain:1.5,x:39,y:70}
+];
+
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const sun=h=>Math.max(0,Math.sin(Math.PI*((h%24+24)%24-6)/12));
+
+function random(seed){
+  return ()=>{
+    let t=seed+=0x6D2B79F5;
+    t=Math.imul(t^t>>>15,t|1);
+    t^=t+Math.imul(t^t>>>7,t|61);
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+
+function vector(r,h,future,node){
+  return [
+    r.offset,r.trend,sun(r.hour),sun(r.hour+h),
+    Math.sin(r.hour*Math.PI/12),Math.cos(r.hour*Math.PI/12),
+    node.bias,node.gain,future-r.macro,(r.rh-60)/30,
+    r.offset*sun(r.hour+h),node.gain*sun(r.hour+h)
+  ];
+}
+
+function solve(a,b){
+  a=a.map((r,i)=>[...r,b[i]]);
+  for(let k=0;k<b.length;k++){
+    let best=k;
+    for(let i=k+1;i<b.length;i++){
+      if(Math.abs(a[i][k])>Math.abs(a[best][k]))best=i;
+    }
+    [a[k],a[best]]=[a[best],a[k]];
+    let d=a[k][k];
+    if(Math.abs(d)<1e-10)d=1e-10;
+    for(let j=k;j<=b.length;j++)a[k][j]/=d;
+    for(let i=0;i<b.length;i++){
+      if(i!==k){
+        let f=a[i][k];
+        for(let j=k;j<=b.length;j++)a[i][j]-=f*a[k][j];
+      }
+    }
+  }
+  return a.map(r=>r[b.length]);
+}
+
+function fit(rows){
+  const p=rows[0].x.length,n=rows.length;
+  const mean=Array(p).fill(0),sd=Array(p).fill(0);
+  for(const r of rows){
+    for(let j=0;j<p;j++)mean[j]+=r.x[j]/n;
+  }
+  for(const r of rows){
+    for(let j=0;j<p;j++)sd[j]+=(r.x[j]-mean[j])**2/n;
+  }
+  for(let j=0;j<p;j++)sd[j]=Math.sqrt(sd[j])||1;
+
+  const A=Array.from({length:p+1},()=>Array(p+1).fill(0));
+  const b=Array(p+1).fill(0);
+  for(const r of rows){
+    const x=[1,...r.x.map((v,j)=>(v-mean[j])/sd[j])];
+    for(let j=0;j<=p;j++){
+      b[j]+=x[j]*r.y;
+      for(let k=0;k<=p;k++)A[j][k]+=x[j]*x[k];
+    }
+  }
+  for(let j=1;j<=p;j++)A[j][j]+=8;
+  return {mean,sd,w:solve(A,b)};
+}
+
+function predict(m,x){
+  return m.w[0]+x.reduce(
+    (s,v,j)=>s+(v-m.mean[j])/m.sd[j]*m.w[j+1],0
+  );
+}
+
+function trainModels(center,seed=17){
+  const rnd=random(seed),N=16*96,cut=12*96;
+  const days=Array.from(
+    {length:18},()=>({t:(rnd()-.5)*6,c:.5+rnd()*.5})
+  );
+  const region=Array.from({length:N},(_,i)=>{
+    const h=i%96/4,d=Math.floor(i/96);
+    const t=center+5.5*Math.sin((h-8)*Math.PI/12)+days[d].t;
+    return {
+      t,h,
+      rh:clamp(65-14*Math.sin((h-8)*Math.PI/12)+(rnd()-.5)*3,20,95)
+    };
+  });
+
+  const data=nodes.map(node=>{
+    let offset=node.bias,old=offset,event=0;
+    return region.map((r,i)=>{
+      if(i%96>40&&i%96<70&&rnd()<.008)event=3+rnd()*2;
+      event*=.94;
+      const target=node.bias+
+        node.gain*sun(r.h)*days[Math.floor(i/96)].c+.12*(r.t-30);
+      old=offset;
+      offset=.9*offset+.1*target;
+      const measured=offset+event+(rnd()-.5)*.3;
+      return {
+        macro:r.t,hour:r.h,rh:r.rh,offset:measured,
+        trend:offset-old,temp:r.t+measured
+      };
+    });
+  });
+
+  const models={};
+  for(const h of [2,4,6]){
+    const s=h*4,tr=[],te=[];
+    data.forEach((rows,j)=>{
+      for(let i=8;i<N-s;i++){
+        const r={
+          x:vector(rows[i],h,region[i+s].t,nodes[j]),
+          y:rows[i+s].offset,
+          regional:region[i+s].t,
+          actual:rows[i+s].temp,
+          persist:rows[i].temp
+        };
+        if(i+s<cut)tr.push(r);
+        else if(i>=cut)te.push(r);
+      }
+    });
+    const m=fit(tr);
+    let mae=0,baseline=0,regional=0;
+    for(const r of te){
+      mae+=Math.abs(r.regional+predict(m,r.x)-r.actual);
+      baseline+=Math.abs(r.persist-r.actual);
+      regional+=Math.abs(r.regional-r.actual);
+    }
+    models[h]={
+      ...m,
+      mae:mae/te.length,
+      persistence:baseline/te.length,
+      regional:regional/te.length,
+      trainN:tr.length,testN:te.length
+    };
+  }
+  return {
+    models,seed,center,syntheticDays:16,
+    trainDays:12,testDays:4,version:1
+  };
+}
+
+function advanceIndoor(t,out,u,solarGain=.15){
+  return t+.25*((out-t)/4+solarGain-2.6*u);
+}
+
+function controlPlan(outdoor,initial=27.4,limit=27.5){
+  const slots=24;
+  const price=Array.from(
+    {length:slots},(_,i)=>i>=8&&i<16?14:8
+  );
+  let beam=[{
+    t:initial,score:0,cost:0,kwh:0,hot:0,
+    temps:[initial],actions:[]
+  }];
+
+  for(let i=0;i<slots;i++){
+    const next=[];
+    for(const s of beam){
+      for(const u of [0,.5,1]){
+        const t=advanceIndoor(s.t,outdoor[i],u);
+        const kwh=.25*2.2*u,cost=kwh*price[i];
+        const discomfort=Math.max(0,t-limit);
+        next.push({
+          t,
+          score:s.score+.06*cost+16*discomfort**2+
+            .5*Math.max(0,24.5-t)**2+
+            .08*Math.abs(u-(s.actions.at(-1)||0)),
+          cost:s.cost+cost,kwh:s.kwh+kwh,
+          hot:s.hot+(t>limit?.25:0),
+          temps:[...s.temps,t],actions:[...s.actions,u]
+        });
+      }
+    }
+    next.sort((a,b)=>a.score-b.score);
+    const bins=new Set();
+    beam=[];
+    for(const s of next){
+      let k=Math.round(s.t*20);
+      if(!bins.has(k)){
+        bins.add(k);
+        beam.push(s);
+      }
+      if(beam.length===40)break;
+    }
+  }
+
+  const best=beam.sort((a,b)=>a.score-b.score)[0];
+  let t=initial,on=false;
+  const base={cost:0,kwh:0,hot:0,temps:[t],actions:[]};
+  for(let i=0;i<slots;i++){
+    if(t>=limit)on=true;
+    else if(t<=limit-1)on=false;
+    const u=on?1:0;
+    t=advanceIndoor(t,outdoor[i],u);
+    const e=.25*2.2*u;
+    base.kwh+=e;
+    base.cost+=e*price[i];
+    base.hot+=t>limit?.25:0;
+    base.temps.push(t);
+    base.actions.push(u);
+  }
+  return {smart:best,reactive:base,price,limit,initial};
+}
+
+function anomaly(history){
+  let level=history[0],trend=0,sigma=.4,run=0,z=0,flag=false;
+  for(let i=1;i<history.length;i++){
+    const pred=level+trend,res=history[i]-pred;
+    z=res/Math.max(.4,sigma);
+    if(i>6&&z>3){
+      run++;
+      level=pred;
+    }else{
+      run=0;
+      const nl=.5*history[i]+.5*pred;
+      trend=.15*(nl-level)+.85*trend;
+      level=nl;
+      sigma=.9*sigma+.125*Math.abs(res);
+    }
+    flag=run>=2;
+  }
+  return {z,flag};
+}
+
+const $=id=>document.getElementById(id);
+let bundle=null,weather=null;
+let active={
+  name:"Pimpri-Chinchwad",lat:18.6298,lon:73.7997,
+  t:31,rh:55,hour:13,tz:"Asia/Kolkata"
+};
+let state={node:0,scenario:"baseline",step:0};
+let timer=null,tourTimer=null,training=false;
+const finite=x=>typeof x==="number"&&Number.isFinite(x);
+
+function localHour(epoch,tz){
+  try{
+    const p=new Intl.DateTimeFormat("en-GB",{
+      timeZone:tz,hour:"2-digit",minute:"2-digit",hourCycle:"h23"
+    }).formatToParts(new Date(epoch*1000));
+    return +p.find(x=>x.type==="hour").value+
+      (+p.find(x=>x.type==="minute").value)/60;
+  }catch{
+    return new Date(epoch*1000).getUTCHours();
+  }
+}
+
+function weatherValue(key,t){
+  const a=weather.hourly.time;
+  const v=weather.hourly[key];
+  const x=weather.current.time+t*3600;
+  let j=1;
+  while(j<a.length&&a[j]<x)j++;
+  if(j>=a.length||x<a[0])return null;
+  return v[j-1]+(v[j]-v[j-1])*(x-a[j-1])/(a[j]-a[j-1]);
+}
+
+function regional(t){
+  let value=weather?weatherValue("temperature_2m",t):null;
+  if(value===null){
+    value=active.t+5.5*(
+      Math.sin((active.hour+t-8)*Math.PI/12)-
+      Math.sin((active.hour-8)*Math.PI/12)
+    );
+  }
+  if(state.scenario==="heatwave"){
+    value+=6*Math.exp(-(((t-2.5)/1.3)**2));
+  }
+  return value;
+}
+
+function calculate(){
+  const rows=nodes.map((n,j)=>{
+    const hist=Array.from({length:22},(_,i)=>{
+      const h=active.hour-(21-i)/12;
+      return regional((i-21)/12)+n.bias+n.gain*.7*sun(h)+
+        .12*(regional(0)-30)+.06*Math.sin(i*1.7+j);
+    });
+    if(state.scenario==="pocket"&&j===0){
+      hist[20]+=3.2;
+      hist[21]+=3.2;
+    }
+
+    const temp=hist.at(-1),offset=temp-regional(0);
+    const r={
+      offset,
+      trend:n.gain*.7*(sun(active.hour)-sun(active.hour-.25)),
+      hour:active.hour,macro:regional(0),rh:active.rh
+    };
+    const points=[{t:0,value:temp,mae:0}];
+
+    for(const h of [2,4,6]){
+      const m=bundle.models[h];
+      const delta=clamp(
+        predict(m,vector(r,h,regional(h),n)),-4,12
+      );
+      points.push({t:h,value:regional(h)+delta,mae:m.mae});
+    }
+
+    const curve=Array.from({length:25},(_,i)=>{
+      const t=i/4;
+      const j=t<=2?0:t<=4?1:2;
+      const a=points[j],b=points[j+1];
+      return a.value+(b.value-a.value)*(t-a.t)/(b.t-a.t);
+    });
+
+    return {
+      temp,offset,points,curve,anomaly:anomaly(hist),
+      rh:clamp(
+        (weather?
+          weatherValue("relative_humidity_2m",state.step/4)??active.rh:
+          active.rh-1.8*(curve[state.step]-temp)
+        )-n.gain*sun(active.hour+state.step/4),5,100
+      ),
+      lux:Math.round(
+        sun(active.hour+state.step/4)*45000*(j===1?.25:1)
+      )
+    };
+  });
+
+  const selected=rows[state.node];
+  const plan=controlPlan(
+    selected.curve.slice(0,24),
+    +$("indoor").value,
+    +$("comfort").value
+  );
+  return {rows,selected,plan};
+}
+
+function line(values,x,y){
+  return values.map(
+    (v,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)
+  ).join(" ");
+}
+
+function chart(id,series,min,max,unit,step=0){
+  const W=760,H=240,L=48,R=18,T=18,B=38;
+  const n=series[0].values.length;
+  min=Math.floor(min-1);
+  max=Math.ceil(max+1);
+  const x=i=>L+i/(n-1)*(W-L-R);
+  const y=v=>T+(max-v)/(max-min)*(H-T-B);
+  let s="<title>"+unit+" over six scenario hours</title>";
+
+  for(let i=0;i<=4;i++){
+    const v=min+(max-min)*i/4,yy=y(v);
+    s+='<line x1="'+L+'" y1="'+yy+'" x2="'+(W-R)+
+      '" y2="'+yy+'" stroke="#233b4d"/><text x="'+(L-8)+
+      '" y="'+(yy+4)+'" text-anchor="end">'+v.toFixed(1)+"</text>";
+  }
+  for(let h=0;h<=6;h+=2){
+    s+='<text x="'+x(h/6*(n-1))+'" y="'+(H-12)+
+      '" text-anchor="middle">+'+h+" h</text>";
+  }
+  for(const z of series){
+    s+='<path d="'+line(z.values,x,y)+
+      '" fill="none" stroke="'+z.color+
+      '" stroke-width="'+(z.dash?2:3)+'" '+
+      (z.dash?'stroke-dasharray="6 5"':"")+"/>";
+  }
+  s+='<line x1="'+x(step)+'" y1="'+T+'" x2="'+x(step)+
+    '" y2="'+(H-B)+
+    '" stroke="#f2f7ff" stroke-dasharray="3 5" opacity=".6"/>';
+  s+='<text x="8" y="14">'+unit+"</text>";
+  $(id).innerHTML=s;
+}
+
+function setScenario(s){
+  pause();
+  state.scenario=s;
+  state.step=0;
+  $("scenario").value=s;
+  render();
+}
+
+function render(){
+  if(!bundle)return;
+
+  const {rows,selected:r,plan:p}=calculate();
+  const n=nodes[state.node],step=state.step;
+
+  $("place").textContent=active.name;
+  $("coords").textContent=
+    active.lat.toFixed(4)+", "+active.lon.toFixed(4);
+  $("weatherSource").textContent=weather?
+    "Regional weather: Open-Meteo · fetched "+
+      new Date(weather.fetched).toLocaleTimeString():
+    "Regional weather: manual scenario";
+  $("sourceNote").textContent=weather?
+    "API weather is regional model output. Street temperatures, light readings and HVAC behavior below are simulated.":
+    "Offline preset. Adjust temperature and humidity or load weather for your location.";
+
+  $("sceneBadge").textContent=state.scenario==="baseline"?
+    "BASELINE SCENARIO":state.scenario==="heatwave"?
+    "INJECTED +6°C HEATWAVE":"INJECTED LOCAL HEAT POCKET";
+
+  $("localTemp").textContent=r.curve[step].toFixed(1)+"°";
+  $("nodeName").textContent=n.name+" · synthetic";
+
+  const peak=Math.max(...r.curve);
+  const peakStep=r.curve.indexOf(peak);
+  $("peak").textContent=peak.toFixed(1)+"°";
+  $("peakAt").textContent=
+    "Forecast peak in "+(peakStep/4).toFixed(2)+" h";
+
+  const change=p.reactive.cost>0?
+    (p.smart.cost/p.reactive.cost-1)*100:0;
+  $("costChange").textContent=p.reactive.cost>0?
+    (change>0?"+":"")+change.toFixed(1)+"%":"—";
+  $("costChange").style.color=change>0?"#ffb86b":"#70e3be";
+  $("costSub").textContent="Modeled cost vs reactive thermostat";
+
+  $("clock").textContent="Scenario +"+
+    String(Math.floor(step/4)).padStart(2,"0")+":"+
+    String(step%4*15).padStart(2,"0");
+  $("timeline").value=step;
+  $("indoorValue").textContent=(+$("indoor").value).toFixed(1)+" °C";
+  $("comfortValue").textContent=(+$("comfort").value).toFixed(1)+" °C";
+
+  $("nodeButtons").innerHTML=nodes.map((node,i)=>
+    '<button class="node '+(i===state.node?"selected":"")+
+    '" data-node="'+i+'"><span>'+node.name+"</span><strong>"+
+    rows[i].curve[step].toFixed(1)+"°C</strong><small>RH "+
+    rows[i].rh.toFixed(0)+"% · "+rows[i].lux.toLocaleString()+
+    " lx · simulated</small></button>"
+  ).join("");
+
+  $("nodeButtons").querySelectorAll("button").forEach(b=>{
+    b.onclick=()=>{
+      state.node=+b.dataset.node;
+      render();
+    };
+  });
+
+  $("mapNodes").innerHTML=nodes.map((node,i)=>{
+    const xx=node.x*6.4,yy=node.y*2.5+20;
+    const flag=rows[i].anomaly.flag;
+    return '<g><circle cx="'+xx+'" cy="'+yy+
+      '" r="22" fill="'+(flag?"#ff805933":"#70e3be22")+
+      '"/><circle cx="'+xx+'" cy="'+yy+'" r="8" fill="'+
+      (flag?"#ff8059":"#70e3be")+'"/><text x="'+xx+
+      '" y="'+(yy-32)+'" text-anchor="middle">'+node.name+
+      '</text><text x="'+xx+'" y="'+(yy+34)+
+      '" text-anchor="middle">'+rows[i].curve[step].toFixed(1)+
+      "°C</text></g>";
+  }).join("");
+
+  const reg=Array.from({length:25},(_,i)=>regional(i/4));
+  const margin=Array.from({length:25},(_,i)=>
+    i===0?0:bundle.models[i<=8?2:i<=16?4:6].mae
+  );
+
+  chart("forecastChart",[
+    {values:reg,color:"#718aa1",dash:true},
+    {
+      values:r.curve.map((v,i)=>v+margin[i]),
+      color:"#2d736b",dash:true
+    },
+    {
+      values:r.curve.map((v,i)=>v-margin[i]),
+      color:"#2d736b",dash:true
+    },
+    {values:r.curve,color:"#70e3be"}
+  ],
+    Math.min(...reg,...r.curve)-.5,
+    Math.max(...reg,...r.curve)+.5,"°C",step
+  );
+
+  chart("controlChart",[
+    {values:Array(25).fill(p.limit),color:"#52697e",dash:true},
+    {values:p.reactive.temps,color:"#ffb86b"},
+    {values:p.smart.temps,color:"#70e3be"}
+  ],
+    Math.min(...p.smart.temps,...p.reactive.temps,p.limit),
+    Math.max(...p.smart.temps,...p.reactive.temps,p.limit),
+    "°C",step
+  );
+
+  const action=p.smart.actions[Math.min(step,23)];
+  $("indoorNow").textContent=p.smart.temps[step].toFixed(1)+"°";
+  $("action").textContent=step===24?
+    "REPLAY COMPLETE":action===0?
+    "COOLING IDLE":action===.5?
+    "COOLING AT 50%":"COOLING AT 100%";
+  $("actionDetail").textContent=
+    "Virtual HVAC only · "+(action*2.2).toFixed(1)+" kW modeled draw";
+
+  $("schedule").innerHTML=p.smart.actions.map((u,i)=>
+    '<span class="'+(i===step?"current":"")+
+    '" style="background:'+(u===0?"#213347":u===.5?"#358e7d":"#70e3be")+
+    '" title="+'+(i/4)+" h: "+u*100+'% cooling"></span>'
+  ).join("");
+
+  $("compare").innerHTML=
+    "<tr><td>Modeled electricity</td><td>"+
+    p.reactive.kwh.toFixed(2)+" kWh</td><td>"+
+    p.smart.kwh.toFixed(2)+" kWh</td></tr>"+
+    "<tr><td>Illustrative bill</td><td>₹"+
+    p.reactive.cost.toFixed(2)+"</td><td>₹"+
+    p.smart.cost.toFixed(2)+"</td></tr>"+
+    "<tr><td>Time above comfort limit</td><td>"+
+    Math.round(p.reactive.hot*60)+" min</td><td>"+
+    Math.round(p.smart.hot*60)+" min</td></tr>";
+
+  const triggered=rows.findIndex(v=>v.anomaly.flag);
+  $("anomalyState").textContent=triggered>=0?
+    "HEAT ANOMALY DETECTED":"NO CONFIRMED SPIKE";
+  $("anomalyState").style.color=triggered>=0?"#ffb86b":"#70e3be";
+  $("anomalyDetail").textContent=triggered>=0?
+    nodes[triggered].name+
+      " · two consecutive residuals exceed the adaptive threshold.":
+    "Holt level/trend detector compares synthetic readings with its adaptive baseline.";
+
+  $("insight").textContent=
+    (triggered>=0?"A localized spike is present. ":"")+
+    n.name+" starts "+Math.abs(r.offset).toFixed(1)+"°C "+
+    (r.offset>=0?"above":"below")+" the regional baseline. "+
+    "The learned forecast peaks at "+peak.toFixed(1)+"°C. "+
+    "The planner "+
+    (action>0?
+      "allocates cooling at the selected time":
+      p.smart.actions.slice(step).some(u=>u>0)?
+      "holds cooling for later":
+      "leaves cooling off for the remaining schedule"
+    )+" under the displayed thermal and tariff assumptions.";
+
+  $("modelRows").innerHTML=[2,4,6].map(h=>{
+    const m=bundle.models[h];
+    return "<tr><td>+"+h+" h</td><td>"+m.mae.toFixed(2)+
+      "°C</td><td>"+m.persistence.toFixed(2)+"°C</td><td>"+
+      m.regional.toFixed(2)+"°C</td><td>"+m.testN+"</td></tr>";
+  }).join("");
+
+  $("trainMeta").textContent=
+    "Ridge regression · 12 input features · 16 synthetic days · "+
+    "first 12 days train / last 4 days test · horizon-purged split · seed "+
+    bundle.seed;
+  $("training").textContent="MODEL READY";
+}
+
+function pause(){
+  clearInterval(timer);
+  timer=null;
+  $("play").textContent="▶ Play 6 hours";
+}
+
+function play(){
+  if(!bundle||training)return;
+  if(timer){
+    pause();
+    return;
+  }
+  if(state.step>=24)state.step=0;
+  $("play").textContent="❚❚ Pause";
+  timer=setInterval(()=>{
+    state.step++;
+    render();
+    if(state.step>=24)pause();
+  },600);
+}
+
+function rebuild(){
+  if(training)return;
+  training=true;
+  pause();
+  $("training").textContent="TRAINING ON SYNTHETIC HISTORY…";
+  setTimeout(()=>{
+    try{
+      const center=active.t-
+        5.5*Math.sin((active.hour-8)*Math.PI/12);
+      const seed=(
+        Math.round((active.lat+90)*100)^
+        Math.round((active.lon+180)*100)
+      )>>>0;
+      bundle=trainModels(center,seed);
+      state.step=0;
+      render();
+      cache();
+    }catch(e){
+      $("training").textContent="TRAINING FAILED";
+      $("message").textContent=e.message;
+    }finally{
+      training=false;
+    }
+  },30);
+}
+
+function inputs(){
+  const lat=Number($("lat").value);
+  const lon=Number($("lon").value);
+  if(
+    !$("lat").value.trim()||!$("lon").value.trim()||
+    !finite(lat)||!finite(lon)||
+    lat<-90||lat>90||lon<-180||lon>180
+  ){
+    throw Error("Enter valid latitude and longitude.");
+  }
+  return {
+    lat,lon,
+    name:$("city").value.trim()||"Selected coordinates"
+  };
+}
+
+function manual(){
+  if(training)return;
+  stopTour();
+  try{
+    const loc=inputs();
+    const t=Number($("temp").value);
+    const rh=Number($("rh").value);
+    const hour=Number($("hour").value);
+    if(
+      ["temp","rh","hour"].some(id=>!$(id).value.trim())||
+      !finite(t)||t< -20||t>50||
+      !finite(rh)||rh<5||rh>100||
+      !finite(hour)||hour<0||hour>=24
+    ){
+      throw Error(
+        "Use temperature −20 to 50°C, humidity 5–100%, and hour 0–23."
+      );
+    }
+    weather=null;
+    active={...active,...loc,t,rh,hour};
+    $("message").textContent=
+      "Manual scenario applied. These are supplied assumptions.";
+    rebuild();
+  }catch(e){
+    $("message").textContent=e.message;
+  }
+}
+
+async function getJSON(url){
+  const c=new AbortController();
+  const timeout=setTimeout(()=>c.abort(),12000);
+  try{
+    const r=await fetch(url,{signal:c.signal});
+    if(!r.ok)throw Error("Weather service returned "+r.status);
+    return await r.json();
+  }finally{
+    clearTimeout(timeout);
+  }
+}
+
+async function searchCity(){
+  $("search").disabled=true;
+  $("message").textContent="Searching locations…";
+  try{
+    const q=$("city").value.trim();
+    if(q.length<3)throw Error("Enter at least three characters.");
+    const d=await getJSON(
+      "https://geocoding-api.open-meteo.com/v1/search?name="+
+      encodeURIComponent(q)+"&count=5&language=en&format=json"
+    );
+    const results=d.results||[];
+    if(!results.length){
+      throw Error(
+        "No match. Try a nearby city or enter coordinates directly."
+      );
+    }
+    $("results").replaceChildren();
+    for(const r of results){
+      const o=document.createElement("option");
+      o.value=JSON.stringify({
+        name:r.name,lat:r.latitude,lon:r.longitude
+      });
+      o.textContent=[r.name,r.admin1,r.country]
+        .filter(Boolean).join(", ");
+      $("results").appendChild(o);
+    }
+    $("results").hidden=false;
+    const choose=()=>{
+      const v=JSON.parse($("results").value);
+      $("lat").value=v.lat;
+      $("lon").value=v.lon;
+      $("city").value=$("results").selectedOptions[0].textContent;
+    };
+    $("results").onchange=choose;
+    choose();
+    $("message").textContent=
+      "Select the right result, then click Load regional weather.";
+  }catch(e){
+    $("message").textContent=
+      "Location search unavailable: "+e.message+
+      " You can enter coordinates directly.";
+  }finally{
+    $("search").disabled=false;
+  }
+}
+
+async function loadWeather(){
+  if(training)return;
+  $("load").disabled=true;
+  $("message").textContent="Loading regional weather…";
+  try{
+    const loc=inputs();
+    const q=new URLSearchParams({
+      latitude:loc.lat,longitude:loc.lon,
+      current:"temperature_2m,relative_humidity_2m",
+      hourly:"temperature_2m,relative_humidity_2m",
+      forecast_days:"2",past_days:"1",
+      timeformat:"unixtime",timezone:"auto"
+    });
+    const d=await getJSON(
+      "https://api.open-meteo.com/v1/forecast?"+q
+    );
+
+    if(
+      !d.current||
+      !finite(d.current.temperature_2m)||
+      !finite(d.current.relative_humidity_2m)||
+      !finite(d.current.time)||!d.hourly
+    ){
+      throw Error("Missing current weather.");
+    }
+
+    const fields=[
+      "time","temperature_2m","relative_humidity_2m"
+    ];
+    if(fields.some(k=>
+      !Array.isArray(d.hourly[k])||
+      d.hourly[k].length<8||
+      d.hourly[k].some(v=>!finite(v))
+    )){
+      throw Error("Incomplete forecast.");
+    }
+    if(
+      new Set(fields.map(k=>d.hourly[k].length)).size!==1||
+      d.hourly.time.at(-1)<d.current.time+21600
+    ){
+      throw Error("Insufficient forecast coverage.");
+    }
+    for(let i=1;i<d.hourly.time.length;i++){
+      if(d.hourly.time[i]<=d.hourly.time[i-1]){
+        throw Error("Invalid weather timestamps.");
+      }
+    }
+
+    d.fetched=Date.now();
+    weather=d;
+    active={
+      ...loc,
+      t:d.current.temperature_2m,
+      rh:d.current.relative_humidity_2m,
+      hour:localHour(d.current.time,d.timezone),
+      tz:d.timezone
+    };
+    $("temp").value=active.t;
+    $("rh").value=active.rh;
+    $("hour").value=Math.floor(active.hour);
+    $("message").textContent=
+      "Regional weather loaded. Street nodes remain simulated.";
+    rebuild();
+  }catch(e){
+    $("message").textContent=
+      "Weather could not be loaded. Current scenario is unchanged. "+
+      "Use Apply manual baseline to continue offline. "+e.message;
+  }finally{
+    $("load").disabled=false;
+  }
+}
+
+function cache(){
+  try{
+    localStorage.setItem(
+      "aeroclim-demo-v1",JSON.stringify({active,weather})
+    );
+  }catch{}
+}
+
+function download(name,value,type){
+  const url=URL.createObjectURL(new Blob([value],{type}));
+  const a=document.createElement("a");
+  a.href=url;
+  a.download=name;
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+
+function exportRun(){
+  if(!bundle)return;
+  download(
+    "aeroclim-demo-run.json",
+    JSON.stringify({
+      disclosure:
+        "Software simulation. No hardware telemetry. "+
+        "Models trained and evaluated on synthetic data. "+
+        "HVAC outcomes are modeled, not measured.",
+      created:new Date().toISOString(),
+      active,weather,scenario:state,model:bundle,
+      result:calculate(),
+      assumptions:{
+        thermalTimeConstantH:4,coolingDegPerH:2.6,powerKW:2.2,
+        offpeakRupeesPerKWh:8,peakRupeesPerKWh:14,
+        peakHoursFromStart:[2,4]
+      }
+    },null,2),
+    "application/json"
+  );
+}
+
+const scriptLines=[
+  "0–15 s · This is AeroClim, a software prototype for street-level climate intelligence. Regional weather provides context; four simulated nodes represent different surfaces.",
+  "15–35 s · Here we inject a heatwave scenario. A regression model learns local temperature offsets and forecasts two, four and six hours ahead.",
+  "35–50 s · A separate adaptive detector identifies a sudden local heat pocket. This highlights how edge monitoring and forecasting can complement each other.",
+  "50–75 s · The virtual cooling planner compares schedules against a reactive thermostat. These cost and comfort outcomes come from the displayed building model.",
+  "75–90 s · The evaluation panel shows calculated results on synthetic held-out data. Our next milestone is connecting and validating the assembled sensor PCB."
+];
+
+function stopTour(){
+  clearInterval(tourTimer);
+  tourTimer=null;
+  $("tour").textContent="Start 90-second tour";
+}
+
+function startTour(){
+  if(!bundle||training)return;
+  if(tourTimer){
+    stopTour();
+    pause();
+    return;
+  }
+
+  pause();
+  state.node=0;
+  $("evidence").open=false;
+  $("overview").scrollIntoView({behavior:"smooth",block:"start"});
+  setScenario("baseline");
+  $("tour").textContent="Stop tour";
+  $("narration").textContent=scriptLines[0];
+
+  const started=Date.now();
+  let stage=0;
+  tourTimer=setInterval(()=>{
+    const sec=(Date.now()-started)/1000;
+    const next=sec<15?0:sec<35?1:sec<50?2:sec<75?3:4;
+    if(next!==stage){
+      stage=next;
+      $("narration").textContent=scriptLines[stage];
+      if(stage===1)setScenario("heatwave");
+      if(stage===2)setScenario("pocket");
+      if(stage===3){
+        setScenario("heatwave");
+        $("controlPanel").scrollIntoView({
+          behavior:"smooth",block:"center"
+        });
+        play();
+      }
+      if(stage===4){
+        pause();
+        $("evidence").open=true;
+        $("evidence").scrollIntoView({
+          behavior:"smooth",block:"center"
+        });
+      }
+    }
+    $("tourTime").textContent=
+      Math.min(90,Math.floor(sec))+" / 90 s";
+    if(sec>=90)stopTour();
+  },250);
+}
+
+$("search").onclick=searchCity;
+$("load").onclick=loadWeather;
+$("apply").onclick=manual;
+$("scenario").onchange=()=>{
+  pause();
+  setScenario($("scenario").value);
+};
+$("play").onclick=play;
+$("reset").onclick=()=>{
+  pause();
+  state.step=0;
+  render();
+};
+$("timeline").oninput=()=>{
+  pause();
+  state.step=+$("timeline").value;
+  render();
+};
+$("indoor").oninput=render;
+$("comfort").oninput=render;
+$("tour").onclick=startTour;
+$("export").onclick=exportRun;
+
+$("full").onclick=()=>{
+  if(document.fullscreenElement){
+    document.exitFullscreen();
+  }else if(document.documentElement.requestFullscreen){
+    document.documentElement.requestFullscreen().catch(()=>{
+      $("message").textContent=
+        "Fullscreen unavailable. Maximize your browser instead.";
+    });
+  }
+};
+
+$("save").onclick=()=>download(
+  "aeroclim-demo.html",
+  "<!doctype html>\n"+document.documentElement.outerHTML,
+  "text/html"
+);
+
+try{
+  const saved=JSON.parse(localStorage.getItem("aeroclim-demo-v1"));
+  if(
+    saved&&saved.active&&
+    finite(saved.active.t)&&finite(saved.active.lat)
+  ){
+    active=saved.active;
+    if(
+      saved.weather&&saved.weather.fetched&&
+      Date.now()-saved.weather.fetched>=0&&
+      Date.now()-saved.weather.fetched<3600000
+    ){
+      weather=saved.weather;
+    }
+  }
+}catch{}
+
+$("city").value=active.name;
+$("lat").value=active.lat;
+$("lon").value=active.lon;
+$("temp").value=active.t;
+$("rh").value=active.rh;
+$("hour").value=Math.floor(active.hour);
+$("narration").textContent=scriptLines[0];
+rebuild();
+</script>
+
+<script id="aeroclim-clean-copy">(() => {
+  const byId = id => document.getElementById(id);
+  const previousRender = render;
+  function refreshCopy() {
+    const note = byId("sourceNote");
+    if (note) note.textContent =
+      "Demo data: synthetic local readings and modeled cooling, with regional weather or manual inputs.";
+    const node = byId("nodeName");
+    if (node) node.textContent = node.textContent.replace(/\s*·\s*synthetic$/, " · forecast");
+    const cost = byId("costSub");
+    if (cost) cost.textContent = "Projected cost vs reactive thermostat";
+    const action = byId("actionDetail");
+    if (action) action.textContent = action.textContent
+      .replace("Virtual HVAC only · ", "")
+      .replace(" modeled draw", " projected draw");
+    byId("nodeButtons")?.querySelectorAll("small").forEach(el => {
+      el.textContent = el.textContent.replace(/\s*·\s*simulated$/, " · estimated");
+    });
+  }
+  render = function(...args) {
+    const result = previousRender.apply(this, args);
+    refreshCopy();
+    return result;
+  };
+  refreshCopy();
+})();</script><script id="aeroclim-ai-workbench">
+function aeroclimExplain(model, features, weatherForecast) {
+  if(features.length !== 12 || model.w.length !== 13 ||
+     model.mean.length !== 12 || model.sd.length !== 12)
+    throw Error("This dashboard uses a different feature mapping.");
+  const terms=features.map((value,i)=>(value-model.mean[i])/model.sd[i]*model.w[i+1]);
+  const groups=[
+    {name:"Current local offset and trend",indices:[0,1,10]},
+    {name:"Time and daylight",indices:[2,3,4,5]},
+    {name:"Surface characteristics",indices:[6,7,11]},
+    {name:"Regional weather change",indices:[8]},
+    {name:"Humidity",indices:[9]}
+  ].map(g=>({name:g.name,value:g.indices.reduce((s,i)=>s+terms[i],0)}));
+  const raw=model.w[0]+terms.reduce((a,b)=>a+b,0);
+  const correction=Math.max(-4,Math.min(12,raw));
+  return {intercept:model.w[0],terms,groups,raw,correction,
+    clipping:correction-raw,prediction:weatherForecast+correction};
+}
+(() => {
+  document.getElementById("aiWorkbench")?.remove();
+  document.getElementById("aiWorkbenchStyle")?.remove();
+  const css=document.createElement("style");
+  css.id="aiWorkbenchStyle";
+  css.textContent=
+    "#aiWorkbench{margin:18px 0;border-color:#70e3be66}"+
+    ".aiw-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:16px 0}"+
+    ".aiw-card{background:#071724;border:1px solid #294358;border-radius:12px;padding:16px}"+
+    ".aiw-card strong{display:block;font-size:30px;color:#70e3be;margin:8px 0}"+
+    ".aiw-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}"+
+    ".aiw-controls select{width:auto}.aiw-detail{margin-top:14px}"+
+    ".aiw-detail summary{font-size:13px}.aiw-mono{font:12px ui-monospace,monospace}"+
+    ".aiw-bar{height:6px;border-radius:3px;background:#70e3be;margin-top:5px}"+
+    "#aiw-status{font-size:12px;color:#91a8bb}"+
+    "@media(max-width:850px){.aiw-grid{grid-template-columns:1fr}}";
+  document.head.appendChild(css);
+  const panel=document.createElement("section");
+  panel.id="aiWorkbench";panel.className="panel";
+  panel.innerHTML=
+    '<div class="sectionhead"><div><div class="eyebrow">AI WORKBENCH · TRAIN → PREDICT → PLAN</div>'+
+    '<h2>What is the model actually doing?</h2></div>'+
+    '<button id="aiw-train">Retrain models</button></div>'+
+    '<p class="note">Three ridge regression models learn local temperature corrections. The planner uses the selected forecast to choose a cooling schedule.</p>'+
+    '<div class="aiw-controls"><label>Forecast used by dashboard '+
+    '<select id="aiw-mode"><option value="learned">Learned local forecast</option><option value="regional">Regional weather only</option></select></label>'+
+    '<label>Inspect horizon <select id="aiw-horizon"><option value="2">+2 hours</option><option value="4">+4 hours</option><option value="6">+6 hours</option></select></label></div>'+
+    '<div class="aiw-grid">'+
+    '<div class="aiw-card"><div class="eyebrow">1 / BEFORE LOCAL MACHINE LEARNING</div><strong id="aiw-weather">—</strong><small>Regional weather forecast</small></div>'+
+    '<div class="aiw-card"><div class="eyebrow">2 / AFTER LOCAL MACHINE LEARNING</div><strong id="aiw-learned">—</strong><small id="aiw-correction">Learned correction</small></div>'+
+    '<div class="aiw-card"><div class="eyebrow">3 / PLANNED COOLING</div><strong id="aiw-duty">—</strong><small id="aiw-plan">Waiting for a forecast</small></div></div>'+
+    '<p id="aiw-flow"></p><p id="aiw-status">Waiting for initial model training…</p>'+
+    '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px">'+
+    '<div><h3>Does learning beat simple forecasting?</h3>'+
+    '<div class="tableWrap"><table><thead><tr><th>Method</th><th>Test MAE ↓</th></tr></thead><tbody id="aiw-errors"></tbody></table></div>'+
+    '<small id="aiw-split"></small></div>'+
+    '<div><h3>Try changing one model input</h3>'+
+    '<label style="margin-top:12px">Change the current local reading <b id="aiw-shiftLabel">+0.0°C</b>'+
+    '<input id="aiw-shift" type="range" min="-3" max="3" step=".1" value="0"></label>'+
+    '<p id="aiw-response"></p><small>This input experiment changes the preview prediction only. Other inputs stay fixed; it does not rewrite the scenario.</small></div></div>'+
+    '<details class="aiw-detail"><summary>Show the learned calculation</summary>'+
+    '<p class="note">These are exact additive contributions from the fitted regression coefficients, relative to the training averages. They are not causal effects.</p>'+
+    '<div class="tableWrap"><table><thead><tr><th>Contribution</th><th>Temperature offset</th></tr></thead><tbody id="aiw-contributions"></tbody></table></div>'+
+    '<p class="aiw-mono" id="aiw-equation"></p></details>'+
+    '<details class="aiw-detail"><summary>Training and planning methods</summary>'+
+    '<p class="note">Training uses 16 generated days: the first 12 for fitting and the last 4 for testing, with samples that cross the split removed. Retraining uses the same seed and should reproduce the same coefficients. These test errors do not establish accuracy on real sensors.</p>'+
+    '<p class="note">The cooling planner searches off, half-power and full-power actions over six hours using a room model. Changing forecast mode illustrates how the forecast affects the plan; costs across different forecast modes are not a measured energy-savings comparison. The anomaly detector is statistical; the explanation is calculated, not an LLM response.</p></details>';
+  document.getElementById("sourceNote").after(panel);
+  const el=id=>document.getElementById(id);
+  const signed=x=>(x>=0?"+":"")+x.toFixed(2);
+  const originalCalculate=calculate,originalRender=render;
+  let mode="learned",learnedView=null,displayView=null;
+  let trainMessage="Models fitted automatically when the dashboard loaded.";
+
+  calculate=function(...args) {
+    learnedView=originalCalculate.apply(this,args);
+    if(mode==="learned"){displayView=learnedView;return displayView;}
+    const curve=Array.from({length:25},(_,i)=>regional(i/4));
+    const rows=learnedView.rows.map(r=>({...r,curve:[...curve],
+      points:[0,2,4,6].map(h=>({t:h,value:regional(h),mae:null}))}));
+    displayView={
+      rows,selected:rows[state.node],
+      plan:controlPlan(curve.slice(0,24),+el("indoor").value,+el("comfort").value)
+    };
+    return displayView;
+  };
+
+  function refreshWorkbench() {
+    if(!bundle||!learnedView||!displayView)return;
+    const h=+el("aiw-horizon").value,n=nodes[state.node],r=learnedView.selected;
+    const input={
+      offset:r.offset,
+      trend:n.gain*.7*(sun(active.hour)-sun(active.hour-.25)),
+      hour:active.hour,macro:regional(0),rh:active.rh
+    };
+    const model=bundle.models[h],weatherForecast=regional(h);
+    const x=vector(input,h,weatherForecast,n);
+    const info=aeroclimExplain(model,x,weatherForecast);
+    const point=r.points.find(p=>p.t===h);
+    if(!point||Math.abs(info.prediction-point.value)>1e-6)
+      throw Error("The feature explanation does not match this dashboard's forecast.");
+    el("aiw-weather").textContent=weatherForecast.toFixed(2)+"°C";
+    el("aiw-learned").textContent=info.prediction.toFixed(2)+"°C";
+    el("aiw-correction").textContent=signed(info.correction)+"°C learned local correction";
+    const step=Math.min(state.step,23),plan=displayView.plan;
+    el("aiw-duty").textContent=state.step===24?"Complete":Math.round(plan.smart.actions[step]*100)+"%";
+    el("aiw-plan").textContent="Planned cooling at scenario +"+(state.step/4).toFixed(2)+" h";
+    el("aiw-flow").textContent=
+      (mode==="learned"?"The learned local forecast":"The regional weather forecast")+
+      " is feeding the planner. It evaluates 24 quarter-hour decisions against the "+
+      plan.limit.toFixed(1)+"°C comfort ceiling.";
+    el("aiw-status").textContent=trainMessage;
+    el("aiw-errors").innerHTML=[
+      ["Learned ridge model",model.mae],
+      ["Regional weather only",model.regional],
+      ["Repeat current temperature",model.persistence]
+    ].map(([name,error])=>"<tr><td>"+name+"</td><td>"+error.toFixed(3)+"°C</td></tr>").join("");
+    el("aiw-split").textContent="Synthetic held-out data · "+model.trainN.toLocaleString()+
+      " training rows · "+model.testN.toLocaleString()+" test rows · 12 features · seed "+bundle.seed;
+
+    const shift=+el("aiw-shift").value;
+    el("aiw-shiftLabel").textContent=(shift>=0?"+":"")+shift.toFixed(1)+"°C";
+    const changed=vector({...input,offset:input.offset+shift},h,weatherForecast,n);
+    const shifted=aeroclimExplain(model,changed,weatherForecast);
+    el("aiw-response").textContent=
+      "Current prediction: "+info.prediction.toFixed(2)+"°C → test input prediction: "+
+      shifted.prediction.toFixed(2)+"°C ("+signed(shifted.prediction-info.prediction)+"°C).";
+    const contributions=[{name:"Learned intercept",value:info.intercept},...info.groups,
+      {name:"Output range adjustment",value:info.clipping}];
+    const max=Math.max(.01,...contributions.map(g=>Math.abs(g.value)));
+    el("aiw-contributions").innerHTML=contributions.map(g=>
+      "<tr><td>"+g.name+'<div class="aiw-bar" style="width:'+
+      (Math.abs(g.value)/max*100).toFixed(1)+"%;background:"+
+      (g.value>=0?"#70e3be":"#ffb86b")+'"></div></td><td>'+
+      signed(g.value)+"°C</td></tr>").join("");
+    el("aiw-equation").textContent=weatherForecast.toFixed(2)+"°C regional + ("+
+      info.correction.toFixed(2)+"°C learned correction) = "+info.prediction.toFixed(2)+"°C";
+    if(mode==="regional"){
+      const curve=displayView.selected.curve;
+      chart("forecastChart",[{values:curve,color:"#718aa1"}],Math.min(...curve),Math.max(...curve),"°C",state.step);
+      el("nodeName").textContent="Regional weather-only forecast";
+      el("training").textContent="MODEL TRAINED · REGIONAL BASELINE SELECTED";
+      el("insight").textContent="The planner is using the regional forecast with no learned local correction. The workbench shows the trained model's alternative prediction.";
+    }
+    const peakCaption=el("peak").closest(".metric")?.querySelector(".eyebrow");
+    if(peakCaption)peakCaption.textContent=mode==="learned"?"LEARNED 6-HOUR FORECAST":"REGIONAL 6-HOUR FORECAST";
+    const legend=el("forecastChart").parentElement.querySelector(".legend");
+    if(legend){
+      const spans=legend.querySelectorAll("span");
+      if(spans[0])spans[0].innerHTML='<i class="dot"></i>'+
+        (mode==="learned"?"Local ridge forecast":"Regional forecast supplied to planner");
+      if(spans[1])spans[1].style.display=mode==="learned"?"":"none";
+      if(spans[2])spans[2].textContent=mode==="learned"?
+        "Faint lines: ± synthetic test MAE":"No local ML correction applied";
+    }
+  }
+  function safeRefresh(){
+    try{refreshWorkbench();}
+    catch(error){el("aiw-status").textContent="Workbench could not explain this model: "+error.message;}
+  }
+  render=function(...args){
+    const result=originalRender.apply(this,args);safeRefresh();return result;
+  };
+  el("aiw-horizon").onchange=safeRefresh;
+  el("aiw-shift").oninput=safeRefresh;
+  el("aiw-mode").onchange=()=>{
+    pause();if(typeof stopTour==="function")stopTour();
+    mode=el("aiw-mode").value;state.step=0;render();
+  };
+  el("aiw-train").onclick=()=>{
+    if(!bundle||training)return;
+    pause();if(typeof stopTour==="function")stopTour();
+    training=true;el("aiw-train").disabled=true;
+    el("aiw-status").textContent="Fitting three regression models…";
+    setTimeout(()=>{
+      try{
+        const started=performance.now();
+        bundle=trainModels(bundle.center,bundle.seed);
+        trainMessage="Retrained 3 models and fitted "+
+          Object.values(bundle.models).reduce((s,m)=>s+m.w.length,0)+
+          " coefficients in "+Math.round(performance.now()-started)+" ms.";
+        state.step=0;render();
+      }catch(error){el("aiw-status").textContent="Training failed: "+error.message;}
+      finally{training=false;el("aiw-train").disabled=false;}
+    },40);
+  };
+  el("export").onclick=()=>{
+    if(!bundle)return;
+    download("aeroclim-ai-run.json",JSON.stringify({
+      created:new Date().toISOString(),
+      forecast_mode:mode,
+      provenance:{training:"Synthetic generated history",regional:weather?"Open-Meteo":"Manual scenario",hardware:"No hardware telemetry",cooling:"Room-model calculation"},
+      active,weather,scenario:state,model:bundle,result:calculate(),
+      input_experiment:{horizon_h:+el("aiw-horizon").value,local_offset_change_c:+el("aiw-shift").value,applied_to_scenario:false},
+      assumptions:{thermalTimeConstantH:4,coolingDegPerH:2.6,powerKW:2.2,offpeakRupeesPerKWh:8,peakRupeesPerKWh:14,peakHoursFromStart:[2,4]}
+    },null,2),"application/json");
+  };
+  render();
+})();
+
+</script></body></html>
