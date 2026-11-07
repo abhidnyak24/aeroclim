@@ -8,6 +8,8 @@ This repository brings together the latest browser dashboard, the v3 hardware/PC
 
 ## Try the browser demo
 
+Website: **[aeroclim.live](https://aeroclim.live/)**. The custom domain becomes available once deployment, DNS and HTTPS provisioning complete. See the [hosting and update guide](docs/HOSTING.md).
+
 Open [demo/index.html](demo/index.html) in a modern browser. There is no build step, API key, or JavaScript dependency to install. Download or clone the repository first; GitHub's file viewer displays source rather than running the page.
 
 For a local web server, run from the repository root:
@@ -88,6 +90,7 @@ Available editable designs and manufacturing exports are in [hardware/](hardware
 | `tests/` | Python integration, portable C++ core and browser calculation tests |
 | `broker/`, `compose.yaml` | Optional local Mosquitto broker |
 | `.github/workflows/ci.yml` | Automated software checks |
+| `.github/workflows/pages.yml` | Publish the browser dashboard to GitHub Pages |
 
 ## Development checks
 
