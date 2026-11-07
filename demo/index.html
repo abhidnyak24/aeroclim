@@ -279,7 +279,6 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
     </select>
   </div>
 </div>
-<p class="note" id="sourceNote">Demo data: synthetic local readings and modeled cooling, with regional weather or manual inputs.</p>
 
 <div class="grid metrics">
   <div class="panel metric">
@@ -444,99 +443,6 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
     You can stop it and operate the controls manually.
   </small>
 </section>
-
-<details class="panel evidence" id="evidence">
-  <summary>Model evidence, assumptions &amp; demo notes</summary>
-  <p id="trainMeta"></p>
-  <div class="evidenceGrid">
-    <div>
-      <h3>Calculated test errors — synthetic data only</h3>
-      <div class="tableWrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Horizon</th>
-              <th>Ridge MAE</th>
-              <th>Persistence MAE</th>
-              <th>Regional MAE</th>
-              <th>Test rows</th>
-            </tr>
-          </thead>
-          <tbody id="modelRows"></tbody>
-        </table>
-      </div>
-      <p>
-        Three ridge regressions are trained in this browser on generated
-        temperature-offset history. Inputs include present offset, trend,
-        hour, surface properties, humidity and future regional temperature.
-        There are no prewritten accuracy or savings results.
-      </p>
-      <p>
-        Training and testing are separated by time and forecast horizon.
-        Both ridge and regional baselines receive the generated future
-        regional temperature. Real weather forecast error, hardware error
-        and transfer to real sites are not validated here. These numbers
-        must not be presented as field accuracy.
-      </p>
-      <p>
-        The anomaly detector uses Holt level/trend residuals and requires
-        two consecutive high residuals. The planner uses a beam search
-        through off, half-power and full-power actions. Only the forecasting
-        component learns regression coefficients.
-      </p>
-    </div>
-    <div>
-      <h3>Transparent assumptions</h3>
-      <ul>
-        <li>Four synthetic nodes; no USB, MQTT, ESP or sensor connection.</li>
-        <li>
-          Room thermal time constant: 4 hours. Extra heat gain: 0.15°C/h.
-          Full cooling effect: 2.6°C/h. Full electrical draw: 2.2 kW.
-        </li>
-        <li>
-          Illustrative tariffs: ₹8/kWh, rising to ₹14/kWh from scenario
-          hour +2 to +4. These are not your actual local tariffs.
-        </li>
-        <li>
-          Reactive thermostat switches on at the comfort ceiling and off
-          1°C below it. Optimizer trades off cost, overheating, overcooling
-          and switching.
-        </li>
-        <li>
-          Humidity and light are illustrative; no gas, particulate, CO₂ or
-          carbon-emissions claims are generated.
-        </li>
-        <li>
-          Location selects regional weather, not a measurement of your room.
-          Manual values are assumptions.
-        </li>
-      </ul>
-      <p>
-        Weather and geocoding:
-        <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>
-        (CC BY 4.0). Online loading is optional; API availability is not guaranteed.
-        Export run saves inputs, assumptions, generated results, metrics and
-        model coefficients.
-      </p>
-    </div>
-  </div>
-  <div class="howto">
-    <p>
-      <b>1. Prepare.</b> Set your location or manual baseline.
-      Keep the simulated-data label visible. Open Fullscreen and rehearse once.
-    </p>
-    <p>
-      <b>2. Record.</b> Start your screen recorder, then the 90-second tour.
-      Read or paraphrase the narration below the dashboard.
-      Show your assembled PCB separately as hardware awaiting integration.
-    </p>
-    <p>
-      <b>3. Explain.</b> Present this as a software simulation prototype.
-      Show calculated synthetic evaluation; describe real sensor validation
-      as the next milestone.
-    </p>
-  </div>
-</details>
 
 <footer>AeroClim · Climate intelligence prototype.</footer>
 </main>
@@ -1072,18 +978,6 @@ function render(){
       "holds cooling for later":
       "leaves cooling off for the remaining schedule"
     )+" under the displayed thermal and tariff assumptions.";
-
-  $("modelRows").innerHTML=[2,4,6].map(h=>{
-    const m=bundle.models[h];
-    return "<tr><td>+"+h+" h</td><td>"+m.mae.toFixed(2)+
-      "°C</td><td>"+m.persistence.toFixed(2)+"°C</td><td>"+
-      m.regional.toFixed(2)+"°C</td><td>"+m.testN+"</td></tr>";
-  }).join("");
-
-  $("trainMeta").textContent=
-    "Ridge regression · 12 input features · 16 synthetic days · "+
-    "first 12 days train / last 4 days test · horizon-purged split · seed "+
-    bundle.seed;
   $("training").textContent="MODEL READY";
 }
 
@@ -1371,7 +1265,6 @@ function startTour(){
 
   pause();
   state.node=0;
-  $("evidence").open=false;
   $("overview").scrollIntoView({behavior:"smooth",block:"start"});
   setScenario("baseline");
   $("tour").textContent="Stop tour";
@@ -1396,10 +1289,6 @@ function startTour(){
       }
       if(stage===4){
         pause();
-        $("evidence").open=true;
-        $("evidence").scrollIntoView({
-          behavior:"smooth",block:"center"
-        });
       }
     }
     $("tourTime").textContent=
@@ -1481,7 +1370,7 @@ rebuild();
   function refreshCopy() {
     const note = byId("sourceNote");
     if (note) note.textContent =
-      "Demo data: synthetic local readings and modeled cooling, with regional weather or manual inputs.";
+      "";
     const node = byId("nodeName");
     if (node) node.textContent = node.textContent.replace(/\s*·\s*synthetic$/, " · forecast");
     const cost = byId("costSub");
