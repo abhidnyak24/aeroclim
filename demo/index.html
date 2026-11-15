@@ -205,7 +205,6 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
     </div>
   </div>
   <div class="tools">
-    <button id="tour" class="primary">Start 90-second tour</button>
     <button id="full">Fullscreen</button>
     <button id="export">Export run</button>
     <button id="save">Save app copy</button>
@@ -416,17 +415,6 @@ footer{margin-top:20px;font-size:11px;color:var(--muted)}
   </div>
 </div>
 
-<section class="panel narration">
-  <div class="row between">
-    <div class="eyebrow">RECORDING GUIDE / 90 SECONDS</div>
-    <small id="tourTime">Ready</small>
-  </div>
-  <p id="narration"></p>
-  <small>
-    The guided tour changes scenarios automatically.
-    You can stop it and operate the controls manually.
-  </small>
-</section>
 
 
 <footer>AeroClim · Climate intelligence.</footer>
@@ -1235,7 +1223,6 @@ const scriptLines=[
 function stopTour(){
   clearInterval(tourTimer);
   tourTimer=null;
-  $("tour").textContent="Start 90-second tour";
 }
 
 function startTour(){
@@ -1300,7 +1287,6 @@ $("timeline").oninput=()=>{
 };
 $("indoor").oninput=render;
 $("comfort").oninput=render;
-$("tour").onclick=startTour;
 $("export").onclick=exportRun;
 
 $("full").onclick=()=>{
@@ -1343,7 +1329,6 @@ $("lon").value=active.lon;
 $("temp").value=active.t;
 $("rh").value=active.rh;
 $("hour").value=Math.floor(active.hour);
-$("narration").textContent=scriptLines[0];
 rebuild();
 </script>
 
